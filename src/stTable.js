@@ -47,6 +47,7 @@ ng.module('smart-table')
             delete object[path];
          }
       }
+
       if ($attrs.onItemsChanged)
          onItemsChangedGetter = $parse($attrs.onItemsChanged);
 
@@ -121,14 +122,17 @@ ng.module('smart-table')
        * this will chain the operations of sorting and filtering based on the current table state (sort options, filtering, ect)
        */
       this.pipe = function pipe() {
-         var onItemsChanged = onItemsChangedGetter($scope);
+         var onItemsChanged;
+         if (onItemsChangedGetter)
+            onItemsChanged = onItemsChangedGetter($scope);
          var pagination = tableState.pagination;
          var output;
          filtered = tableState.search.predicateObject ? filter(safeCopy, tableState.search.predicateObject) : safeCopy;
          if (tableState.sort.predicate) {
             filtered = orderBy(filtered, tableState.sort.predicate, tableState.sort.reverse);
          }
-         onItemsChanged(filtered);
+         if (onItemsChanged)
+            onItemsChanged(filtered);
          pagination.totalItemCount = filtered.length;
          if (pagination.number !== undefined) {
             pagination.numberOfPages = filtered.length > 0 ? Math.ceil(filtered.length / pagination.number) : 1;
